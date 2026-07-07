@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from .database import engine, Base, get_db
@@ -24,3 +25,6 @@ def check_db_status(db: Session = Depends(get_db)):
         return {"status": "success", "database": "Connected Successfully"}
     except Exception as e:
         return {"status": "error", "message": str(e)}
+=======
+
+>>>>>>> 3bf61516707da045e0b63adb5ae9d51fc9ae1209
