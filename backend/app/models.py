@@ -29,10 +29,17 @@ class QuizQuestion(Base):
     id = Column(Integer, primary_key=True, index=True)
     category = Column(String(100), nullable=False)
     question_text = Column(String(500), nullable=False)
+<<<<<<< HEAD
     option_a = Column(String(255), nullable=False)
     option_b = Column(String(255), nullable=False)
     option_c = Column(String(255), nullable=False)
     option_d = Column(String(255), nullable=False)
+=======
+    option_a = Column(String(205), nullable=False)
+    option_b = Column(String(205), nullable=False)
+    option_c = Column(String(205), nullable=False)
+    option_d = Column(String(205), nullable=False)
+>>>>>>> 96033feebbe1fb936fbd700b3c1335684e58d1d8
     correct_answer = Column(String(5), nullable=False)
 
 # Relationships update
