@@ -137,3 +137,41 @@ def submit_quiz(submission: schemas.QuizSubmission, db: Session = Depends(get_db
         "recommended_career_path": recommended_career,
         "next_learning_step": f"Focus on core concepts of {best_category} to boost your profile."
     }
+
+# ==========================================
+# DAY 4: LEARNING ANALYTICS & DASHBOARD ENGINE
+# ==========================================
+
+@app.get("/api/dashboard/{student_id}", response_model=schemas.DashboardAnalyticsResponse)
+def get_student_dashboard(student_id: int, db: Session = Depends(get_db)):
+    # 1. Student details database se fetch karein
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student profile not found!"
+        )
+        
+    # 2. Student ka profile analytics record fetch karein
+    profile = db.query(models.StudentProfile).filter(models.StudentProfile.student_id == student_id).first()
+    
+    # Defaults fallback configuration agar empty profile hai
+    career_goal = profile.career_goal if profile else "Not Set Yet"
+    readiness_score = float(profile.readiness_score) if profile else 0.0
+    is_verified = profile.is_verified if profile else 0
+    
+    # Mock data dashboard graph pipeline ke liye
+    mock_quiz_performance = {
+        "Web Development": "85%",
+        "Backend & Databases": "90%",
+        "Data Science & AI": "45%",
+        "Cloud & DevOps": "60%"
+    }
+    
+    return {
+        "student_name": student.name,
+        "career_goal": career_goal,
+        "industry_readiness_score": readiness_score,
+        "is_verified": is_verified,
+        "recent_quiz_performance": mock_quiz_performance
+    }
