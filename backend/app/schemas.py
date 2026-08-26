@@ -4,18 +4,15 @@ from pydantic import BaseModel, EmailStr
 # DAY 2: AUTHENTICATION SCHEMAS
 # ==========================================
 
-# User Sign-up ke waqt jo data bhejega
 class StudentCreate(BaseModel):
     name: str
     email: EmailStr
     password: str
 
-# User Login ke waqt jo data bhejega
 class StudentLogin(BaseModel):
     email: EmailStr
     password: str
 
-# API response mein user ko kya dikhana hai
 class StudentResponse(BaseModel):
     id: int
     name: str
@@ -29,7 +26,6 @@ class StudentResponse(BaseModel):
 # DAY 3: QUIZ SYSTEM SCHEMAS
 # ==========================================
 
-# Quiz Question Response Schema
 class QuizQuestionResponse(BaseModel):
     id: int
     category: str
@@ -42,7 +38,6 @@ class QuizQuestionResponse(BaseModel):
     class Config:
         from_attributes = True
 
-# Student Quiz Submission Schema
 class QuizSubmission(BaseModel):
     answers: dict  # Format: {"1": "A", "2": "C"}
 
@@ -57,6 +52,23 @@ class DashboardAnalyticsResponse(BaseModel):
     industry_readiness_score: float
     is_verified: int
     recent_quiz_performance: dict
+    gamification_metrics: dict
+    industry_insights: dict
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================
+# DAY 5: ACTION PLAN RESPONSE SCHEMA
+# ==========================================
+
+class ActionPlanResponse(BaseModel):
+    student_name: str
+    analysis_summary: str
+    identified_gap_domain: str
+    personalized_action_plan: dict
+    system_status: str
 
     class Config:
         from_attributes = True

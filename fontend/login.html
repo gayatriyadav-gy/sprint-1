@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSync - Login</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl p-8 max-w-md w-full space-y-6">
+        
+        <!-- Header Section -->
+        <div class="text-center space-y-2">
+            <div class="inline-flex bg-indigo-600 p-3 rounded-xl shadow-lg shadow-indigo-600/30 mb-2">
+                <i class="fa-solid fa-rocket text-2xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+                SkillSync
+            </h1>
+            <p class="text-slate-400 text-sm">Sign in to access your dynamic career dashboard</p>
+        </div>
+
+        <!-- Alert / Status Box -->
+        <div id="alertBox" class="hidden p-3 rounded-lg text-sm font-medium text-center border"></div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Email Address</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-envelope"></i>
+                    </span>
+                    <input type="email" id="email" required 
+                        placeholder="student@example.com"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-indigo-500 transition duration-200">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-lock"></i>
+                    </span>
+                    <input type="password" id="password" required 
+                        placeholder="••••••••"
+                        class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-white focus:outline-none focus:border-indigo-500 transition duration-200">
+                </div>
+            </div>
+
+            <button type="submit" id="loginBtn" 
+                class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl transition duration-200 shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                <span>Sign In</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <!-- Footer Link -->
+        <div class="text-center border-t border-slate-700 pt-4 text-sm text-slate-400">
+            Don't have an account? 
+            <a href="signup.html" class="text-indigo-400 hover:underline font-semibold">Sign Up</a>
+        </div>
+
+    </div>
+
+    <!-- JavaScript Integration for FastAPI Backend Linkage -->
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const alertBox = document.getElementById('alertBox');
+        const loginBtn = document.getElementById('loginBtn');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            // UI Loading State
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Authenticating...`;
+            alertBox.classList.add('hidden');
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.status === "success") {
+                    // Show Success Alert
+                    alertBox.className = "p-3 rounded-lg text-sm font-medium text-center border bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+                    alertBox.innerText = "Login Successful! Redirecting...";
+                    alertBox.classList.remove('hidden');
+
+                    // 🔑 SAVE USER DETAILS IN LOCAL STORAGE
+                    localStorage.setItem('student_id', data.user.id);
+                    localStorage.setItem('student_name', data.user.name);
+
+                    // Redirect to Quiz or Dashboard after 1 second
+                    setTimeout(() => {
+                        window.location.href = "quiz.html";
+                    }, 1000);
+
+                } else {
+                    // Show Error Alert
+                    alertBox.className = "p-3 rounded-lg text-sm font-medium text-center border bg-red-500/10 text-red-400 border-red-500/30";
+                    alertBox.innerText = data.detail || "Invalid Email or Password!";
+                    alertBox.classList.remove('hidden');
+
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = `<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>`;
+                }
+
+            } catch (error) {
+                console.error("Login Error:", error);
+                alertBox.className = "p-3 rounded-lg text-sm font-medium text-center border bg-red-500/10 text-red-400 border-red-500/30";
+                alertBox.innerText = "Unable to connect to backend server!";
+                alertBox.classList.remove('hidden');
+
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = `<span>Sign In</span> <i class="fa-solid fa-arrow-right"></i>`;
+            }
+        });
+    </script>
+</body>
+</html>
