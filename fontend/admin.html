@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillSync - Faculty & Admin Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased">
+    
+    <!-- Navigation Bar -->
+    <nav class="bg-[#111827]/90 backdrop-blur border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="bg-gradient-to-tr from-cyan-500 to-violet-600 p-2.5 rounded-xl shadow-lg shadow-cyan-500/20">
+                <i class="fa-solid fa-shield-halved text-xl text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">SkillSync Admin Portal</h1>
+                <p class="text-[11px] text-slate-400">Faculty & Evaluator Monitoring Console</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <span class="px-3 py-1 bg-violet-500/10 border border-violet-500/30 text-violet-400 text-xs font-bold rounded-xl flex items-center gap-1.5">
+                <i class="fa-solid fa-user-gear"></i> Faculty Admin
+            </span>
+            <a href="dashboard.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5">
+                <i class="fa-solid fa-desktop"></i> Student View
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+        <!-- Top Aggregate Metrics -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-[#111827] border border-slate-800 rounded-3xl p-6 shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Enrolled Students</p>
+                    <h3 id="statTotalStudents" class="text-4xl font-black text-white mt-2">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl font-bold">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <div class="bg-[#111827] border border-slate-800 rounded-3xl p-6 shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Batch Average Readiness</p>
+                    <h3 id="statAvgScore" class="text-4xl font-black text-emerald-400 mt-2">0.0%</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl font-bold">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+            </div>
+
+            <div class="bg-[#111827] border border-slate-800 rounded-3xl p-6 shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Industry-Ready Candidates (≥75%)</p>
+                    <h3 id="statReadyCount" class="text-4xl font-black text-violet-400 mt-2">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/30 flex items-center justify-center text-violet-400 text-xl font-bold">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Records Data Table -->
+        <div class="bg-[#111827] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+                <div>
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-cyan-400"></i> Student Performance & Role Mapping Directory
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Real-time evaluation data from database</p>
+                </div>
+                <button onclick="loadAdminData()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh Table
+                </button>
+            </div>
+
+            <!-- Table Container -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                            <th class="py-3 px-4">Student ID</th>
+                            <th class="py-3 px-4">Student Details</th>
+                            <th class="py-3 px-4">Readiness Score</th>
+                            <th class="py-3 px-4">Assigned Industry Role</th>
+                            <th class="py-3 px-4">Rank Tier & XP</th>
+                            <th class="py-3 px-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody" class="divide-y divide-slate-800/60 text-xs">
+                        <tr>
+                            <td colspan="6" class="text-center py-8 text-slate-500">
+                                <i class="fa-solid fa-spinner fa-spin text-cyan-400 text-xl mb-2"></i>
+                                <p>Fetching student evaluations from backend...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JavaScript logic to fetch live data -->
+    <script>
+        async function loadAdminData() {
+            const tableBody = document.getElementById("studentTableBody");
+            try {
+                const res = await fetch("http://127.0.0.1:8000/api/admin/students");
+                if (!res.ok) throw new Error("API error");
+                const data = await res.json();
+
+                // Update Metric Counters
+                document.getElementById("statTotalStudents").innerText = data.stats.total_students;
+                document.getElementById("statAvgScore").innerText = data.stats.average_readiness;
+                document.getElementById("statReadyCount").innerText = data.stats.industry_ready_candidates;
+
+                if (!data.students || data.students.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-500">No student records registered yet.</td></tr>`;
+                    return;
+                }
+
+                tableBody.innerHTML = data.students.map(s => {
+                    const score = s.readiness_score;
+                    let badgeClass = "bg-rose-500/10 text-rose-400 border-rose-500/30";
+                    let statusText = "Needs Training";
+
+                    if (score >= 80) {
+                        badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/30";
+                        statusText = "Industry Ready ⭐";
+                    } else if (score >= 50) {
+                        badgeClass = "bg-cyan-500/10 text-cyan-300 border-cyan-500/30";
+                        statusText = "Competent 👍";
+                    }
+
+                    return `
+                        <tr class="hover:bg-slate-800/40 transition">
+                            <td class="py-4 px-4 font-mono font-bold text-slate-400">#STU-0${s.id}</td>
+                            <td class="py-4 px-4">
+                                <p class="font-bold text-white text-sm">${s.name}</p>
+                                <p class="text-slate-400 text-[11px]">${s.email}</p>
+                            </td>
+                            <td class="py-4 px-4">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-black text-cyan-300">${score}%</span>
+                                    <div class="w-16 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="bg-cyan-400 h-full rounded-full" style="width: ${score}%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4 px-4">
+                                <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-[11px]">
+                                    ${s.target_role}
+                                </span>
+                            </td>
+                            <td class="py-4 px-4">
+                                <p class="font-semibold text-slate-300">${s.current_rank}</p>
+                                <p class="text-[10px] text-cyan-400 font-bold">${s.total_xp} XP</p>
+                            </td>
+                            <td class="py-4 px-4 text-center">
+                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold border ${badgeClass}">
+                                    ${statusText}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }).join("");
+
+            } catch (err) {
+                console.error("Admin data fetch error:", err);
+                tableBody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-rose-400">Failed to connect to backend server. Make sure FastAPI is running.</td></tr>`;
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", loadAdminData);
+    </script>
+</body>
+</html>

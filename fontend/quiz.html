@@ -3,181 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillSync - Career Mentorship Quiz</title>
+    <title>SkillSync - Proctored Assessment Quiz</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex flex-col justify-between p-6 font-sans antialiased">
 
-    <!-- Header -->
-    <header class="max-w-4xl mx-auto w-full flex justify-between items-center pb-6 border-b border-slate-800">
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen font-sans antialiased select-none">
+
+    <!-- Top Sticky Bar with Timer & Tab Warnings -->
+    <nav class="bg-[#111827]/90 backdrop-blur border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50 shadow-lg">
         <div class="flex items-center space-x-3">
             <div class="bg-gradient-to-tr from-cyan-500 to-violet-600 p-2.5 rounded-xl shadow-lg shadow-cyan-500/20">
                 <i class="fa-solid fa-graduation-cap text-xl text-white"></i>
             </div>
             <div>
-                <h1 class="text-2xl font-black bg-gradient-to-r from-cyan-400 via-teal-300 to-violet-400 bg-clip-text text-transparent">
-                    SkillSync Mentorship Quiz
-                </h1>
-                <p class="text-slate-400 text-xs mt-0.5">Answer questions to unlock your personalized career path</p>
+                <h1 class="text-xl font-black bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">SkillSync Assessment</h1>
+                <p class="text-[11px] text-slate-400 font-medium">Proctored Anti-Cheat Mode Active</p>
             </div>
         </div>
-        <a href="dashboard.html" class="px-4 py-2 bg-[#111827] hover:bg-slate-800 text-slate-300 text-xs font-semibold rounded-xl border border-slate-800 transition">
-            Skip to Dashboard →
-        </a>
-    </header>
 
-    <!-- Main Container -->
-    <main class="max-w-4xl mx-auto w-full my-auto py-8">
-        <!-- Quiz Loading / Error Container -->
-        <div id="status-container" class="text-center py-12">
-            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-cyan-400 mb-3"></i>
-            <p class="text-cyan-400 text-sm font-medium animate-pulse">Loading Quiz Questions from FastAPI Backend...</p>
+        <div class="flex items-center space-x-4">
+            <!-- Fullscreen Trigger Button -->
+            <button onclick="requestExamFullScreen()" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold rounded-xl transition">
+                <i class="fa-solid fa-expand text-cyan-400"></i> Full Screen
+            </button>
+
+            <!-- Tab Switch Warning Counter -->
+            <div id="tabWarningBox" class="px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold flex items-center gap-1.5">
+                <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                <span>Tab Switches: <strong id="switchCountText">0/2</strong></span>
+            </div>
+
+            <!-- Live Countdown Timer -->
+            <div class="px-4 py-2 bg-slate-900 border border-cyan-500/40 rounded-xl flex items-center gap-2 shadow-inner">
+                <i class="fa-regular fa-clock text-cyan-400 animate-pulse"></i>
+                <span class="text-xs text-slate-400 uppercase font-bold">Time Left:</span>
+                <span id="timerDisplay" class="text-base font-black text-cyan-300 font-mono">05:00</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Proctoring Alert Modal (Shown on Tab Switch) -->
+    <div id="cheatModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#111827] border-2 border-rose-500 rounded-3xl p-6 max-w-md w-full shadow-2xl text-center space-y-4">
+            <div class="w-14 h-14 bg-rose-500/20 text-rose-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="text-xl font-black text-rose-400">Security Warning: Tab Switch Detected!</h3>
+            <p id="cheatWarningMsg" class="text-xs text-slate-300">
+                Switching browser tabs or minimizing the window is prohibited. If you switch tabs <span class="text-rose-400 font-bold">1 more time</span>, your test will be <strong>auto-submitted immediately</strong>.
+            </p>
+            <button onclick="dismissCheatWarning()" class="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl transition">
+                I Understand, Return to Exam
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Quiz Container -->
+    <div class="max-w-4xl mx-auto px-6 py-8">
+        
+        <!-- Header Info Card -->
+        <div class="mb-8 bg-[#111827] border border-slate-800 p-6 rounded-3xl shadow-xl flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-xl font-bold">
+                🎯
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-white">Diagnostic Skill Assessment</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Answer the domain questions to evaluate your industry readiness score. Switching tabs will trigger auto-submission.</p>
+            </div>
         </div>
 
-        <!-- Quiz Container (Hidden initially) -->
-        <form id="quiz-form" class="hidden space-y-8">
-            <div id="questions-list" class="space-y-6"></div>
+        <!-- Dynamic Questions List Form -->
+        <form id="quizForm" onsubmit="submitAssessment(event)" class="space-y-6">
+            <div id="questionsContainer" class="space-y-6">
+                <!-- Loaded Dynamically via JS -->
+                <div class="text-center py-12 text-slate-500 text-sm">
+                    <i class="fa-solid fa-spinner fa-spin text-cyan-400 text-2xl mb-2"></i>
+                    <p>Loading questions from database...</p>
+                </div>
+            </div>
 
-            <button type="submit" 
-                class="w-full py-4 bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-black rounded-2xl shadow-xl shadow-cyan-500/20 transition duration-200 active:scale-[0.99] flex items-center justify-center gap-2">
-                <i class="fa-solid fa-rocket"></i> Submit Quiz & Analyze Career Path
-            </button>
+            <!-- Submit Button -->
+            <div class="pt-6">
+                <button type="submit" id="submitQuizBtn" class="w-full bg-gradient-to-r from-cyan-500 to-violet-600 hover:from-cyan-400 hover:to-violet-500 text-white font-black py-4 rounded-2xl transition duration-200 shadow-xl shadow-cyan-500/20 active:scale-[0.99] flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> Complete & Submit Assessment
+                </button>
+            </div>
         </form>
 
-        <!-- Result Container (Hidden initially) -->
-        <div id="result-container" class="hidden bg-[#111827] border border-slate-800 rounded-3xl p-8 space-y-6 shadow-2xl">
-            <div class="text-center space-y-2">
-                <span class="px-3.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-bold rounded-full uppercase tracking-wider">
-                    Analysis Complete
-                </span>
-                <h2 id="recommended-career" class="text-3xl font-black text-white mt-2"></h2>
-                <p id="learning-step" class="text-slate-400 text-sm max-w-xl mx-auto"></p>
-            </div>
+    </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                <div class="bg-[#0b0f19] p-5 rounded-2xl border border-slate-800">
-                    <p class="text-slate-400 text-xs uppercase font-bold tracking-wider">Attempted</p>
-                    <p id="total-attempted" class="text-3xl font-black text-cyan-400 mt-1">0</p>
-                </div>
-                <div class="bg-[#0b0f19] p-5 rounded-2xl border border-slate-800">
-                    <p class="text-slate-400 text-xs uppercase font-bold tracking-wider">Correct Answers</p>
-                    <p id="total-correct" class="text-3xl font-black text-emerald-400 mt-1">0</p>
-                </div>
-                <div class="bg-[#0b0f19] p-5 rounded-2xl border border-slate-800">
-                    <p class="text-slate-400 text-xs uppercase font-bold tracking-wider">Readiness Score</p>
-                    <p id="readiness-score" class="text-3xl font-black text-violet-400 mt-1">0%</p>
-                </div>
-            </div>
-
-            <a href="dashboard.html" class="block w-full text-center py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black rounded-2xl transition duration-200 shadow-lg shadow-emerald-500/20 active:scale-[0.99]">
-                Go to Gamified Dashboard 📊
-            </a>
-        </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="text-center text-slate-500 text-xs py-4 border-t border-slate-800/60">
-        SkillSync Engine • Powered by FastAPI & SQLite
-    </footer>
-
-    <!-- Frontend Script -->
+    <!-- Quiz Proctoring & Evaluation Script -->
     <script>
-        const API_BASE_URL = "http://127.0.0.1:8000";
         const studentId = localStorage.getItem('student_id') || 1;
+        let totalTimeSeconds = 5 * 60; // 5 Minutes
+        let timerInterval = null;
+        let tabSwitchCount = 0;
+        const MAX_TAB_SWITCHES = 2; // Auto-submit after 2 warnings
+        let isSubmitted = false;
+        let isHandlingViolation = false;
 
-        // 1. Fetch Questions from Backend
-        async function loadQuiz() {
-            const statusContainer = document.getElementById('status-container');
-            const quizForm = document.getElementById('quiz-form');
-            const questionsList = document.getElementById('questions-list');
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/quiz/questions`);
-                if (!response.ok) throw new Error("Failed to load questions");
-
-                const questions = await response.json();
-
-                if (questions.length === 0) {
-                    statusContainer.innerHTML = `<p class="text-amber-400">No questions found in database.</p>`;
-                    return;
-                }
-
-                statusContainer.classList.add('hidden');
-                quizForm.classList.remove('hidden');
-
-                // Render questions dynamically
-                questionsList.innerHTML = questions.map((q, index) => `
-                    <div class="bg-[#111827] border border-slate-800 rounded-2xl p-6 space-y-4 shadow-lg">
-                        <p class="font-bold text-base text-slate-100 flex items-start gap-2">
-                            <span class="text-cyan-400">${index + 1}.</span> ${q.question_text}
-                        </p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                            ${['option_a', 'option_b', 'option_c', 'option_d'].map((optKey, i) => {
-                                const optionValue = q[optKey];
-                                const optionLetter = String.fromCharCode(65 + i); // A, B, C, D
-                                return `
-                                    <label class="flex items-center space-x-3 bg-[#0b0f19] border border-slate-800 hover:border-cyan-500/60 p-3.5 rounded-xl cursor-pointer transition">
-                                        <input type="radio" name="q_${q.id}" value="${optionLetter}" required class="text-cyan-500 focus:ring-cyan-400 bg-slate-900 border-slate-700">
-                                        <span class="text-sm text-slate-300"><strong class="text-cyan-400">${optionLetter}.</strong> ${optionValue}</span>
-                                    </label>
-                                `;
-                            }).join('')}
-                        </div>
-                    </div>
-                `).join('');
-
-            } catch (err) {
-                statusContainer.innerHTML = `<p class="text-rose-400 font-semibold text-sm">Error connecting to backend: ${err.message}</p>`;
+        // ==========================================
+        // 1. FULLSCREEN & ANTI-INSPECT PROTECTION
+        // ==========================================
+        function requestExamFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.warn("Fullscreen request error:", err);
+                });
             }
         }
 
-        // 2. Handle Quiz Submission
-        document.getElementById('quiz-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Disable Right-Click Context Menu
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-            const formData = new FormData(e.target);
-            const answers = {};
-
-            for (let [key, value] of formData.entries()) {
-                const qId = key.replace('q_', '');
-                answers[qId] = value;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/quiz/submit?student_id=${studentId}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        student_id: parseInt(studentId),
-                        answers: answers 
-                    })
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    document.getElementById('quiz-form').classList.add('hidden');
-                    const resultContainer = document.getElementById('result-container');
-                    resultContainer.classList.remove('hidden');
-
-                    document.getElementById('recommended-career').innerText = result.recommended_career_path;
-                    document.getElementById('learning-step').innerText = result.next_learning_step;
-                    document.getElementById('total-attempted').innerText = result.metrics.total_questions_attempted;
-                    document.getElementById('total-correct').innerText = result.metrics.total_correct;
-                    document.getElementById('readiness-score').innerText = result.metrics.industry_readiness_score;
-                } else {
-                    alert("Submission error: " + (result.detail || "Unable to submit quiz."));
-                }
-            } catch (err) {
-                alert("Submission failed: " + err.message);
+        // Disable Inspect Shortcuts (F12, Ctrl+Shift+I, Ctrl+U, etc.)
+        document.addEventListener('keydown', (e) => {
+            if (
+                e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'C' || e.key === 'J')) ||
+                (e.ctrlKey && (e.key === 'U' || e.key === 'u' || e.key === 'C' || e.key === 'c' || e.key === 'V' || e.key === 'v'))
+            ) {
+                e.preventDefault();
             }
         });
 
-        // Initialize Load
-        loadQuiz();
+        // ==========================================
+        // 2. LIVE COUNTDOWN TIMER
+        // ==========================================
+        function startTimer() {
+            const display = document.getElementById('timerDisplay');
+            timerInterval = setInterval(() => {
+                if (totalTimeSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("⏰ Time is UP! Your assessment is being submitted automatically.");
+                    autoSubmitQuiz("Time Expired");
+                    return;
+                }
+
+                totalTimeSeconds--;
+                const minutes = Math.floor(totalTimeSeconds / 60);
+                const seconds = totalTimeSeconds % 60;
+                display.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (totalTimeSeconds < 60) {
+                    display.className = "text-base font-black text-rose-400 font-mono animate-pulse";
+                }
+            }, 1000);
+        }
+
+        // ==========================================
+        // 3. TAB SWITCH & BLUR DETECTION ENGINE
+        // ==========================================
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && !isSubmitted) {
+                recordTabSwitch();
+            }
+        });
+
+        window.addEventListener('blur', () => {
+            if (!isSubmitted && !document.hidden) {
+                recordTabSwitch();
+            }
+        });
+
+        function recordTabSwitch() {
+            if (isSubmitted || isHandlingViolation) return;
+            isHandlingViolation = true;
+            tabSwitchCount++;
+
+            const switchText = document.getElementById('switchCountText');
+            const cheatModal = document.getElementById('cheatModal');
+
+            switchText.innerText = `${tabSwitchCount}/${MAX_TAB_SWITCHES}`;
+
+            if (tabSwitchCount >= MAX_TAB_SWITCHES) {
+                cheatModal.classList.add('hidden');
+                alert("🚨 Security Violation! You switched tabs multiple times. Your test is now being submitted automatically.");
+                autoSubmitQuiz("Proctoring Violation (Multiple Tab Switches)");
+            } else {
+                cheatModal.classList.remove('hidden');
+            }
+        }
+
+        function dismissCheatWarning() {
+            document.getElementById('cheatModal').classList.add('hidden');
+            setTimeout(() => {
+                isHandlingViolation = false;
+            }, 500);
+            requestExamFullScreen();
+        }
+
+        // ==========================================
+        // 4. FETCH & RENDER QUESTIONS FROM FASTAPI
+        // ==========================================
+        async function loadQuestions() {
+            const container = document.getElementById('questionsContainer');
+            try {
+                const res = await fetch("http://127.0.0.1:8000/api/quiz/questions");
+                let questions = await res.json();
+
+                if (!questions || questions.length === 0) {
+                    questions = [
+                        { id: 1, question_text: "Which HTML5 tag is standard for playing video files directly in browser?", option_a: "<video>", option_b: "<movie>", option_c: "<media>", option_d: "<embed-video>" },
+                        { id: 2, question_text: "Which CSS property is used to create modern flexible responsive layouts?", option_a: "float", option_b: "display: flex", option_c: "align: center", option_d: "clear: both" },
+                        { id: 3, question_text: "Which SQL clause is used to filter records after aggregate GROUP BY?", option_a: "WHERE", option_b: "HAVING", option_c: "ORDER BY", option_d: "FILTER" },
+                        { id: 4, question_text: "Which Python library is primary for numerical array computations?", option_a: "NumPy", option_b: "Pandas", option_c: "Requests", option_d: "Flask" }
+                    ];
+                }
+
+                container.innerHTML = questions.map((q, idx) => `
+                    <div class="bg-[#111827] border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+                        <div class="flex items-start gap-3">
+                            <span class="text-cyan-400 font-black text-base">${idx + 1}.</span>
+                            <h3 class="text-white font-bold text-base leading-snug">${q.question_text}</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                            <label class="flex items-center space-x-3 bg-[#0b0f19] border border-slate-800/90 p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition group">
+                                <input type="radio" name="q_${q.id}" value="A" required class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-400">
+                                <span class="text-xs font-bold text-slate-400 group-hover:text-cyan-300"><strong class="text-cyan-400 mr-1">A.</strong> ${q.option_a}</span>
+                            </label>
+                            <label class="flex items-center space-x-3 bg-[#0b0f19] border border-slate-800/90 p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition group">
+                                <input type="radio" name="q_${q.id}" value="B" class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-400">
+                                <span class="text-xs font-bold text-slate-400 group-hover:text-cyan-300"><strong class="text-cyan-400 mr-1">B.</strong> ${q.option_b}</span>
+                            </label>
+                            <label class="flex items-center space-x-3 bg-[#0b0f19] border border-slate-800/90 p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition group">
+                                <input type="radio" name="q_${q.id}" value="C" class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-400">
+                                <span class="text-xs font-bold text-slate-400 group-hover:text-cyan-300"><strong class="text-cyan-400 mr-1">C.</strong> ${q.option_c}</span>
+                            </label>
+                            <label class="flex items-center space-x-3 bg-[#0b0f19] border border-slate-800/90 p-4 rounded-2xl cursor-pointer hover:border-cyan-500/40 transition group">
+                                <input type="radio" name="q_${q.id}" value="D" class="w-4 h-4 text-cyan-500 bg-slate-900 border-slate-700 focus:ring-cyan-400">
+                                <span class="text-xs font-bold text-slate-400 group-hover:text-cyan-300"><strong class="text-cyan-400 mr-1">D.</strong> ${q.option_d}</span>
+                            </label>
+                        </div>
+                    </div>
+                `).join("");
+
+                startTimer();
+
+            } catch (err) {
+                console.error("Failed to load questions:", err);
+            }
+        }
+
+        // ==========================================
+        // 5. SUBMIT ASSESSMENT & REDIRECT
+        // ==========================================
+        async function submitAssessment(e) {
+            if (e) e.preventDefault();
+            if (isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            const formData = new FormData(document.getElementById('quizForm'));
+            const answers = {};
+
+            for (let [key, val] of formData.entries()) {
+                const qId = key.replace('q_', '');
+                answers[qId] = val;
+            }
+
+            try {
+                await fetch("http://127.0.0.1:8000/api/quiz/submit", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        student_id: parseInt(studentId),
+                        answers: answers
+                    })
+                });
+
+                window.location.href = "dashboard.html";
+            } catch (err) {
+                console.warn("Backend offline during submit. Redirecting to dashboard.");
+                window.location.href = "dashboard.html";
+            }
+        }
+
+        function autoSubmitQuiz(reason) {
+            submitAssessment(null);
+        }
+
+        window.addEventListener('DOMContentLoaded', loadQuestions);
     </script>
 </body>
 </html>

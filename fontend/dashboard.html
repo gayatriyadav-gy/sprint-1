@@ -22,11 +22,22 @@
             </div>
             <h1 class="text-2xl font-black bg-gradient-to-r from-cyan-400 via-teal-300 to-violet-400 bg-clip-text text-transparent">SkillSync</h1>
         </div>
-        <div class="flex items-center space-x-4">
-            <span id="studentNameNav" class="font-medium text-slate-300 text-sm">Loading Student...</span>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-violet-600 to-cyan-400 flex items-center justify-center font-bold text-white shadow-md shadow-violet-500/20">
-                <i class="fa-solid fa-user-astronaut text-lg"></i>
+        
+        <!-- Right Navigation: Faculty Admin Button + Profile + Logout -->
+        <div class="flex items-center space-x-3 md:space-x-4">
+            
+            <!-- Prominent Faculty View Button -->
+            <a href="admin.html" class="px-3.5 py-1.5 bg-violet-600/20 hover:bg-violet-600/40 text-violet-300 border border-violet-500/40 text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg shadow-violet-500/10">
+                <i class="fa-solid fa-shield-halved text-violet-400"></i>
+                <span>Faculty View</span>
+            </a>
+
+            <span id="studentNameNav" class="font-medium text-slate-300 text-sm hidden sm:inline-block">Loading Student...</span>
+            
+            <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-violet-600 to-cyan-400 flex items-center justify-center font-bold text-white shadow-md shadow-violet-500/20">
+                <i class="fa-solid fa-user-astronaut text-base"></i>
             </div>
+
             <button onclick="logoutUser()" class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold rounded-xl transition flex items-center gap-1.5">
                 <i class="fa-solid fa-right-from-bracket"></i> Logout
             </button>
@@ -79,31 +90,24 @@
                 </div>
             </div>
 
-            <!-- Card 2: Market Hiring Status -->
+            <!-- Card 2: Market Hiring Status & Dynamic Company Vacancies -->
             <div class="bg-[#111827] border border-slate-800 rounded-3xl p-6 flex flex-col justify-between shadow-xl">
                 <div>
                     <div class="flex justify-between items-center">
                         <h3 class="text-slate-400 font-bold text-xs uppercase tracking-wider">HIRING DEMAND</h3>
                         <i class="fa-solid fa-briefcase text-violet-400 text-lg"></i>
                     </div>
-                    <p id="hiringDemand" class="text-2xl font-extrabold text-emerald-400 mt-4">High Demand in Market</p>
-                    <p class="text-slate-400 text-sm mt-1">Matching Talent Profile</p>
+                    <p id="hiringDemand" class="text-2xl font-extrabold text-emerald-400 mt-3">High Demand in Market</p>
+                    <p class="text-slate-400 text-xs mt-0.5">Matching Talent Profile</p>
                 </div>
-                <div class="border-t border-slate-800 pt-3 mt-4">
-                    <p class="text-xs text-slate-400 mb-2">Explore Careers & Portals:</p>
-                    <div class="flex flex-wrap gap-2">
-                        <a href="https://www.tcs.com/careers" target="_blank" class="px-2.5 py-1 bg-slate-800/80 hover:bg-cyan-500/20 hover:text-cyan-300 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center gap-1">
-                            TCS <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </a>
-                        <a href="https://www.sutherlandglobal.com/careers" target="_blank" class="px-2.5 py-1 bg-slate-800/80 hover:bg-violet-500/20 hover:text-violet-300 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center gap-1">
-                            Sutherland <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </a>
-                        <a href="https://www.google.com/about/careers" target="_blank" class="px-2.5 py-1 bg-slate-800/80 hover:bg-emerald-500/20 hover:text-emerald-300 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center gap-1">
-                            Google <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </a>
-                        <a href="https://www.amazon.jobs" target="_blank" class="px-2.5 py-1 bg-slate-800/80 hover:bg-amber-500/20 hover:text-amber-300 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 transition flex items-center gap-1">
-                            Amazon <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </a>
+
+                <!-- Dynamic Real-Time Company Vacancy Badges -->
+                <div class="border-t border-slate-800 pt-3 mt-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">LIVE COMPANY PORTALS & VACANCIES:</p>
+                    </div>
+                    <div id="companyContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div class="text-xs text-slate-500 col-span-2 text-center py-2">Loading live company vacancies...</div>
                     </div>
                 </div>
             </div>
@@ -169,10 +173,10 @@
 
         </div>
 
-        <!-- NEW FEATURE ROW: Interactive Learning Checklist & Badges Showcase -->
+        <!-- Interactive Learning Checklist & Badges Showcase -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <!-- Feature 1: Weekly Roadmap Checklist (Fully Interactive) -->
+            <!-- Feature 1: Weekly Roadmap Checklist -->
             <div class="lg:col-span-2 bg-[#111827] border border-slate-800 rounded-3xl p-6 shadow-xl">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-lg font-bold text-white flex items-center gap-2.5">
@@ -208,7 +212,7 @@
                 </div>
             </div>
 
-            <!-- Feature 2: Badges & Achievements Grid (Dynamic Unlock) -->
+            <!-- Feature 2: Badges & Achievements Grid -->
             <div class="bg-[#111827] border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
                 <div>
                     <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2.5">
@@ -263,6 +267,7 @@
                 document.getElementById('userRank').innerHTML = `<i class="fa-solid fa-trophy text-amber-400"></i> ${dashData.gamification_metrics.current_rank}`;
                 
                 baseXP = dashData.gamification_metrics.total_xp_earned || 1200;
+                document.getElementById('xpPoints').innerText = `${baseXP} XP`;
                 document.getElementById('nextBadge').innerText = `Next Badge: ${dashData.gamification_metrics.next_badge_unlock}`;
 
                 const score = dashData.industry_readiness_score;
@@ -270,15 +275,54 @@
                 document.getElementById('readinessBar').style.width = `${score}%`;
                 document.getElementById('hiringDemand').innerText = dashData.industry_insights.hiring_demand_status;
 
+                // Render Automated Company Vacancies
+                renderCompanyVacancies(dashData.industry_insights.company_vacancies);
+
                 renderChart(dashData.recent_quiz_performance);
                 fetchActionPlan();
                 restoreMilestones();
 
             } catch (err) {
                 console.warn("FastAPI backend offline. Loading fallback data.");
+                renderCompanyVacancies([
+                    { company: "TCS", portal_url: "https://www.tcs.com/careers", has_vacancy: true, status_text: "24 Vacancies Open" },
+                    { company: "Sutherland", portal_url: "https://www.sutherlandglobal.com/careers", has_vacancy: true, status_text: "12 Vacancies Open" },
+                    { company: "Google", portal_url: "https://careers.google.com", has_vacancy: false, status_text: "No Vacancy Currently" },
+                    { company: "Amazon", portal_url: "https://www.amazon.jobs", has_vacancy: true, status_text: "8 Vacancies Open" }
+                ]);
                 renderChart({ "Web Development": 85, "Backend & Databases": 60, "Data Science & AI": 75, "Cloud & DevOps": 50 });
                 restoreMilestones();
             }
+        }
+
+        // Render Dynamic Vacancy Badges Function
+        function renderCompanyVacancies(companies) {
+            const container = document.getElementById("companyContainer");
+            if (!container || !companies) return;
+
+            container.innerHTML = companies.map(c => {
+                const isAvail = c.has_vacancy;
+                const borderClass = isAvail ? 'border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-500/50' : 'border-rose-500/20 bg-rose-500/5 hover:border-rose-500/40';
+                const textColor = isAvail ? 'text-emerald-300' : 'text-slate-400';
+                const statusBadge = isAvail ? 'bg-emerald-950/80 text-emerald-400 border border-emerald-500/30' : 'bg-rose-950/60 text-rose-400 border border-rose-500/20';
+                const dotColor = isAvail ? 'bg-emerald-400 animate-pulse' : 'bg-rose-500';
+
+                return `
+                    <a href="${c.portal_url}" target="_blank" class="p-2.5 rounded-xl border ${borderClass} transition flex flex-col justify-between group">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold ${textColor} group-hover:text-white transition flex items-center gap-1">
+                                ${c.company} <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                            </span>
+                            <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+                        </div>
+                        <div class="mt-1.5 flex items-center">
+                            <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold ${statusBadge}">
+                                ${c.status_text}
+                            </span>
+                        </div>
+                    </a>
+                `;
+            }).join("");
         }
 
         function toggleMilestone(taskId, xpReward) {
